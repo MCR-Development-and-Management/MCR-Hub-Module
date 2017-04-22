@@ -1,0 +1,116 @@
+options:
+	module:Hub Module
+	modulever: 1.4.7
+
+on load:
+	if {mineplex.modulesapi.online} is true:
+		loop {mineplex::modules::*}:
+			if loop-value is "{@module}":
+				delete  {mineplex::modules::%loop-index%}
+		add "{@module}" to {mineplex::modules::*}
+	else:
+		broadcast "&9MCR Modules> &7Error when enabling &e{@module} {@modulever}&7: MCR is not loaded or not updated to &eMCR 2.2&7!"
+on unload:
+	remove "{@module}" from {mineplex::modules::*}
+
+script options:
+	$ use permissions
+
+on load:
+	broadcast "&9Hub> &7Enabled Hubv1.4.7"
+
+command /sethub:
+	permission: mineplex.admin
+	permission message: &9Permissions> &7This requires Permmission Rank [&9ADMIN&7].
+	trigger:
+		set {mineplex.spawn} to location of player
+		send "&9Config Manager> &7Set the Hub Location!"
+
+on join:
+	teleport player to {mineplex.spawn}
+
+command /hub:
+	trigger:
+		teleport player to {mineplex.spawn}
+
+command /lobby:
+	trigger:
+		teleport player to {mineplex.spawn}
+
+on place:
+	if player's gamemode is not creative:
+		cancel event
+
+on break:
+	if player's gamemode is not creative:
+		cancel event
+
+command /load [<string>]:
+	permission: mineplex.admin
+	permission message: &9Permissions> &7This requires Permmission Rank [&9ADMIN&7].
+	trigger:
+		enable plugin "plugins/%arg-1%.jar"
+
+on right click on villager:
+	if player has permission "mineplex.trainee" or "mineplex.youtube" or "mineplex.twitch":
+		send "&9Hub> &7Why would you want a worse rank?" to player
+	else:
+		send "&9Hub> &7There!" to player
+		execute console command "/updaterank %player% ETERNAL"
+
+On Hunger Meter Change:
+	set the player's food level to 10
+
+on damage:
+	if victim is a player:
+		if damage was caused by void:
+			cancel event
+			teleport victim to spawn
+
+on damage:
+	if damage was caused by fall:
+		cancel event
+
+every 5 seconds:
+	set {_t} to 0
+	loop all players:
+		if loop-player has permission "mineplex.trainee":
+			add 1 to {_t}
+	if  {_t} > 0:
+		execute console command "/testmotd &b&lThe Offical Test Server of________&aStaff Online||&a&lMineplex Core Remake"
+	else:
+		execute console command "/testmotd &b&lThe Offical Test Server of___&cStaff Not Online||&a&lMineplex Core Remake"
+
+on server list ping:        
+	set motd to "%{hub.motd}%"
+
+command /testmotd <string>:
+	permission: op
+	trigger:
+		set {_t} to arg 1
+		replace all "_" with " " in {_t}
+		replace all "&" with "" in {_t}
+		replace all "||" with "%nl%" in {_t}
+		set {hub.motd} to {_t}
+
+command /sudo [<string>] [<string>]:
+	permission: op
+	trigger:
+		if arg 1 is not set:
+			send "/sudo <player/all> <command>"
+		else:
+			set {_p} to arg-1 parsed as offline player
+			if arg 1 is "all":
+				send "&9Sudo> &7Done!"
+				loop all players:
+					loop-player is not player:
+						loop-player command "%arg-2%"
+						send "&9Sudo> &7Sudo'ed for &e%arg-2%" to loop-player
+			else:
+				if {_p} is online:
+					send "&9Sudo> &7Done!"
+					{_p} command "%arg-2%"
+					send "&9Sudo> &7Sudo'ed for &e%arg-2%" to {_p}
+				else:
+					send "&9Online Player Search> &e0 &7matches for [&e%arg-1%&7]."
+					send "&9Online Player(s) Search> &7Invalid [&e%arg-1%&7]."
