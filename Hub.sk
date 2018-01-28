@@ -21,7 +21,7 @@ on load:
 
 command /sethub:
 	permission: mineplex.admin
-	permission message: &9Permissions> &7This requires Permmission Rank [&9ADMIN&7].
+	permission message: &9Permissions> &7You do not have permission to do that.
 	trigger:
 		set {mineplex.spawn} to location of player
 		send "&9Config Manager> &7Set the Hub Location!"
@@ -47,7 +47,7 @@ on break:
 
 command /load [<string>]:
 	permission: mineplex.admin
-	permission message: &9Permissions> &7This requires Permmission Rank [&9ADMIN&7].
+	permission message: &9Permissions> &7You do not have permission to do that.
 	trigger:
 		enable plugin "plugins/%arg-1%.jar"
 
